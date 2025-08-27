@@ -29,6 +29,31 @@
         .action-button:hover {
             background-color: #c7d2fe;
         }
+        /* Estilos para el loader */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #3498db;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-4 sm:p-8">
@@ -38,19 +63,19 @@
         <!-- Contenedor principal que se exportará -->
         <div id="cotizacion-container">
             <!-- Encabezado de la Empresa y Cotización -->
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <div>
-                    <input type="text" value="[Nombre de tu Empresa]" class="text-2xl font-bold border-none p-0 focus:ring-0">
-                    <input type="text" value="[Tu Dirección Completa]" class="mt-1 border-none p-0 focus:ring-0">
-                    <input type="text" value="[Tu Teléfono] | [Tu Correo Electrónico]" class="mt-1 border-none p-0 focus:ring-0">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                <div class="text-center sm:text-left">
+                    <input type="text" value="[Nombre de tu Empresa]" class="text-2xl font-bold border-none p-0 focus:ring-0 text-center sm:text-left">
+                    <input type="text" value="[Tu Dirección Completa]" class="mt-1 border-none p-0 focus:ring-0 text-center sm:text-left">
+                    <input type="text" value="[Tu Teléfono] | [Tu Correo Electrónico]" class="mt-1 border-none p-0 focus:ring-0 text-center sm:text-left">
                 </div>
-                <div class="text-right">
+                <div class="text-center sm:text-right">
                     <h1 class="text-3xl font-bold text-gray-700">COTIZACIÓN</h1>
-                    <div class="flex justify-end items-center mt-2">
+                    <div class="flex justify-center sm:justify-end items-center mt-2">
                         <span class="font-bold mr-2">N.º Cotización:</span>
                         <input type="text" value="COT-2025-001" class="text-right border-none p-0 focus:ring-0 w-32">
                     </div>
-                    <div class="flex justify-end items-center mt-1">
+                    <div class="flex justify-center sm:justify-end items-center mt-1">
                         <span class="font-bold mr-2">Fecha:</span>
                         <input type="date" id="fecha-hoy" class="text-right border-none p-0 focus:ring-0 w-32">
                     </div>
@@ -60,7 +85,7 @@
             <!-- Datos del Cliente -->
             <div class="bg-gray-50 p-4 rounded-md border border-gray-200 mb-8">
                 <h2 class="font-bold text-lg mb-2 text-gray-600">DATOS DEL CLIENTE</h2>
-                <div class="grid grid-cols-2 gap-x-6 gap-y-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                     <div class="flex items-center"><span class="font-semibold w-24">Empresa:</span><input type="text" placeholder="Nombre de la empresa cliente"></div>
                     <div class="flex items-center"><span class="font-semibold w-24">Atención:</span><input type="text" placeholder="Nombre del contacto"></div>
                     <div class="flex items-center"><span class="font-semibold w-24">Dirección:</span><input type="text" placeholder="Dirección del cliente"></div>
@@ -70,48 +95,52 @@
 
             <!-- Tabla de Mano de Obra -->
             <h3 class="font-bold text-lg mb-2 text-gray-600">MANO DE OBRA</h3>
-            <table id="tabla-mano-obra" class="w-full mb-2 border-collapse border border-gray-300">
-                <thead>
-                    <tr class="bg-gray-100">
-                        <th class="border border-gray-300 p-2 text-left">PUESTO</th>
-                        <th class="border border-gray-300 p-2 text-center w-24">HORAS</th>
-                        <th class="border border-gray-300 p-2 text-right w-32">COSTO/HORA</th>
-                        <th class="border border-gray-300 p-2 text-right w-32">TOTAL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="border border-gray-300 p-1"><input type="text" placeholder="Ej: Soldador Especializado"></td>
-                        <td class="border border-gray-300 p-1"><input type="number" class="text-center" value="40"></td>
-                        <td class="border border-gray-300 p-1"><input type="number" class="text-right" value="50.00"></td>
-                        <td class="border border-gray-300 p-2 text-right bg-gray-50">$2000.00</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-x-auto">
+                <table id="tabla-mano-obra" class="w-full mb-2 border-collapse border border-gray-300">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border border-gray-300 p-2 text-left">PUESTO</th>
+                            <th class="border border-gray-300 p-2 text-center w-24">HORAS</th>
+                            <th class="border border-gray-300 p-2 text-right w-32">COSTO/HORA</th>
+                            <th class="border border-gray-300 p-2 text-right w-32">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border border-gray-300 p-1"><input type="text" placeholder="Ej: Soldador Especializado"></td>
+                            <td class="border border-gray-300 p-1"><input type="number" class="text-center" value="40"></td>
+                            <td class="border border-gray-300 p-1"><input type="number" class="text-right" value="50.00"></td>
+                            <td class="border border-gray-300 p-2 text-right bg-gray-50">$2000.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <div class="text-right mb-8">
                  <button id="agregar-mano-obra" class="action-button">+ Agregar Fila</button>
             </div>
 
             <!-- Tabla de Materiales -->
             <h3 class="font-bold text-lg mb-2 text-gray-600">MATERIALES Y EQUIPO</h3>
-            <table id="tabla-materiales" class="w-full mb-2 border-collapse border border-gray-300">
-                <thead>
-                    <tr class="bg-gray-100">
-                        <th class="border border-gray-300 p-2 text-left">DESCRIPCIÓN</th>
-                        <th class="border border-gray-300 p-2 text-center w-24">CANT.</th>
-                        <th class="border border-gray-300 p-2 text-right w-32">COSTO UNIT.</th>
-                        <th class="border border-gray-300 p-2 text-right w-32">TOTAL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="border border-gray-300 p-1"><input type="text" placeholder="Ej: Tubería de Acero Inoxidable"></td>
-                        <td class="border border-gray-300 p-1"><input type="number" class="text-center" value="12"></td>
-                        <td class="border border-gray-300 p-1"><input type="number" class="text-right" value="100.00"></td>
-                        <td class="border border-gray-300 p-2 text-right bg-gray-50">$1200.00</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-x-auto">
+                <table id="tabla-materiales" class="w-full mb-2 border-collapse border border-gray-300">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border border-gray-300 p-2 text-left">DESCRIPCIÓN</th>
+                            <th class="border border-gray-300 p-2 text-center w-24">CANT.</th>
+                            <th class="border border-gray-300 p-2 text-right w-32">COSTO UNIT.</th>
+                            <th class="border border-gray-300 p-2 text-right w-32">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border border-gray-300 p-1"><input type="text" placeholder="Ej: Tubería de Acero Inoxidable"></td>
+                            <td class="border border-gray-300 p-1"><input type="number" class="text-center" value="12"></td>
+                            <td class="border border-gray-300 p-1"><input type="number" class="text-right" value="100.00"></td>
+                            <td class="border border-gray-300 p-2 text-right bg-gray-50">$1200.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <div class="text-right mb-8">
                  <button id="agregar-material" class="action-button">+ Agregar Fila</button>
             </div>
@@ -138,7 +167,11 @@
                 Exportar a PDF
             </button>
         </div>
+    </div>
 
+    <!-- Loader Overlay -->
+    <div id="loader-overlay" class="loader-overlay" style="display: none;">
+        <div class="loader"></div>
     </div>
 
     <script>
@@ -227,22 +260,50 @@
         document.getElementById('exportar-pdf').addEventListener('click', function() {
             const { jsPDF } = window.jspdf;
             const elementToPrint = document.getElementById('cotizacion-container');
+            const loader = document.getElementById('loader-overlay');
             
-            html2canvas(elementToPrint, { scale: 2 }).then(canvas => {
+            // Mostrar loader
+            loader.style.display = 'flex';
+
+            // Guardar el ancho original y forzar un ancho de escritorio para la captura
+            const originalWidth = elementToPrint.style.width;
+            elementToPrint.style.width = '1024px'; // Ancho de escritorio estándar
+
+            html2canvas(elementToPrint, { scale: 2, windowWidth: 1024 }).then(canvas => {
+                // Restaurar el ancho original inmediatamente después de la captura
+                elementToPrint.style.width = originalWidth;
+
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-                const canvasWidth = canvas.width;
-                const canvasHeight = canvas.height;
-                const ratio = canvasWidth / canvasHeight;
-                const width = pdfWidth - 20; // Margen de 10mm a cada lado
-                const height = width / ratio;
-
-                let position = 0;
+                const canvasAspectRatio = canvas.width / canvas.height;
                 
-                pdf.addImage(imgData, 'PNG', 10, 10, width, height);
+                // Calcular la altura de la imagen en el PDF para que quepa en el ancho
+                const imgHeight = (pdfWidth - 20) / canvasAspectRatio; 
+                let heightLeft = imgHeight;
+                let position = 10; // Margen superior inicial
+
+                // Añadir la primera página
+                pdf.addImage(imgData, 'PNG', 10, position, pdfWidth - 20, imgHeight);
+                heightLeft -= (pdf.internal.pageSize.getHeight() - 20);
+
+                // Añadir más páginas si el contenido es más largo que una página
+                while (heightLeft > 0) {
+                    position = -heightLeft - 10;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 10, position, pdfWidth - 20, imgHeight);
+                    heightLeft -= (pdf.internal.pageSize.getHeight() - 20);
+                }
+                
                 pdf.save('Cotizacion_Industrial.pdf');
+
+                // Ocultar loader
+                loader.style.display = 'none';
+            }).catch(err => {
+                console.error("Error al generar el PDF:", err);
+                // Asegurarse de ocultar el loader y restaurar el ancho en caso de error
+                elementToPrint.style.width = originalWidth;
+                loader.style.display = 'none';
             });
         });
     </script>
