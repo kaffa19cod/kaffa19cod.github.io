@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formato de Cotización Industrial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Librerías para generar archivos PDF (jsPDF y html2canvas) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .action-button {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .action-button:hover {
+            background-color: #c7d2fe;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-lg shadow-lg">
+
+        <!-- Contenedor principal que se exportará -->
+        <div id="cotizacion-container">
+            <!-- Encabezado de la Empresa y Cotización -->
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div>
+                    <input type="text" value="[Nombre de tu Empresa]" class="text-2xl font-bold border-none p-0 focus:ring-0">
+                    <input type="text" value="[Tu Dirección Completa]" class="mt-1 border-none p-0 focus:ring-0">
+                    <input type="text" value="[Tu Teléfono] | [Tu Correo Electrónico]" class="mt-1 border-none p-0 focus:ring-0">
+                </div>
+                <div class="text-right">
+                    <h1 class="text-3xl font-bold text-gray-700">COTIZACIÓN</h1>
+                    <div class="flex justify-end items-center mt-2">
+                        <span class="font-bold mr-2">N.º Cotización:</span>
+                        <input type="text" value="COT-2025-001" class="text-right border-none p-0 focus:ring-0 w-32">
+                    </div>
+                    <div class="flex justify-end items-center mt-1">
+                        <span class="font-bold mr-2">Fecha:</span>
+                        <input type="date" id="fecha-hoy" class="text-right border-none p-0 focus:ring-0 w-32">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datos del Cliente -->
+            <div class="bg-gray-50 p-4 rounded-md border border-gray-200 mb-8">
+                <h2 class="font-bold text-lg mb-2 text-gray-600">DATOS DEL CLIENTE</h2>
+                <div class="grid grid-cols-2 gap-x-6 gap-y-2">
+                    <div class="flex items-center"><span class="font-semibold w-24">Empresa:</span><input type="text" placeholder="Nombre de la empresa cliente"></div>
+                    <div class="flex items-center"><span class="font-semibold w-24">Atención:</span><input type="text" placeholder="Nombre del contacto"></div>
+                    <div class="flex items-center"><span class="font-semibold w-24">Dirección:</span><input type="text" placeholder="Dirección del cliente"></div>
+                    <div class="flex items-center"><span class="font-semibold w-24">Teléfono:</span><input type="text" placeholder="Teléfono del contacto"></div>
+                </div>
+            </div>
+
+            <!-- Tabla de Mano de Obra -->
+            <h3 class="font-bold text-lg mb-2 text-gray-600">MANO DE OBRA</h3>
+            <table id="tabla-mano-obra" class="w-full mb-2 border-collapse border border-gray-300">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="border border-gray-300 p-2 text-left">PUESTO</th>
+                        <th class="border border-gray-300 p-2 text-center w-24">HORAS</th>
+                        <th class="border border-gray-300 p-2 text-right w-32">COSTO/HORA</th>
+                        <th class="border border-gray-300 p-2 text-right w-32">TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border border-gray-300 p-1"><input type="text" placeholder="Ej: Soldador Especializado"></td>
+                        <td class="border border-gray-300 p-1"><input type="number" class="text-center" value="40"></td>
+                        <td class="border border-gray-300 p-1"><input type="number" class="text-right" value="50.00"></td>
+                        <td class="border border-gray-300 p-2 text-right bg-gray-50">$2000.00</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-right mb-8">
+                 <button id="agregar-mano-obra" class="action-button">+ Agregar Fila</button>
+            </div>
+
+            <!-- Tabla de Materiales -->
+            <h3 class="font-bold text-lg mb-2 text-gray-600">MATERIALES Y EQUIPO</h3>
+            <table id="tabla-materiales" class="w-full mb-2 border-collapse border border-gray-300">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="border border-gray-300 p-2 text-left">DESCRIPCIÓN</th>
+                        <th class="border border-gray-300 p-2 text-center w-24">CANT.</th>
+                        <th class="border border-gray-300 p-2 text-right w-32">COSTO UNIT.</th>
+                        <th class="border border-gray-300 p-2 text-right w-32">TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border border-gray-300 p-1"><input type="text" placeholder="Ej: Tubería de Acero Inoxidable"></td>
+                        <td class="border border-gray-300 p-1"><input type="number" class="text-center" value="12"></td>
+                        <td class="border border-gray-300 p-1"><input type="number" class="text-right" value="100.00"></td>
+                        <td class="border border-gray-300 p-2 text-right bg-gray-50">$1200.00</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-right mb-8">
+                 <button id="agregar-material" class="action-button">+ Agregar Fila</button>
+            </div>
+
+            <!-- Resumen Financiero -->
+            <div class="flex justify-end">
+                <div class="w-full sm:w-1/2 lg:w-1/3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="font-bold text-right">SUBTOTAL:</div>
+                        <div id="subtotal" class="text-right">$3200.00</div>
+                        <div class="font-bold text-right">IVA (16%):</div>
+                        <div id="iva" class="text-right">$512.00</div>
+                        <div class="font-bold text-2xl text-right border-t-2 pt-2 mt-2">TOTAL:</div>
+                        <div id="total" class="font-bold text-2xl text-right border-t-2 pt-2 mt-2">$3712.00</div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- Fin del contenedor para exportar -->
+
+        <!-- Botón de Exportar -->
+        <div class="mt-12 text-center">
+            <button id="exportar-pdf" class="bg-red-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-red-700 transition-colors shadow-md">
+                Exportar a PDF
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // Función para establecer la fecha de hoy en el input de fecha
+        document.getElementById('fecha-hoy').valueAsDate = new Date();
+
+        // Función para formatear números como moneda
+        const formatCurrency = (value) => {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+        };
+        
+        // Función principal para calcular todos los totales
+        function calcularTotales() {
+            let subtotalManoObra = 0;
+            const filasManoObra = document.querySelectorAll('#tabla-mano-obra tbody tr');
+            filasManoObra.forEach(fila => {
+                const horas = parseFloat(fila.cells[1].querySelector('input').value) || 0;
+                const costoHora = parseFloat(fila.cells[2].querySelector('input').value) || 0;
+                const totalFila = horas * costoHora;
+                fila.cells[3].textContent = formatCurrency(totalFila);
+                subtotalManoObra += totalFila;
+            });
+
+            let subtotalMateriales = 0;
+            const filasMateriales = document.querySelectorAll('#tabla-materiales tbody tr');
+            filasMateriales.forEach(fila => {
+                const cantidad = parseFloat(fila.cells[1].querySelector('input').value) || 0;
+                const costoUnitario = parseFloat(fila.cells[2].querySelector('input').value) || 0;
+                const totalFila = cantidad * costoUnitario;
+                fila.cells[3].textContent = formatCurrency(totalFila);
+                subtotalMateriales += totalFila;
+            });
+
+            const subtotal = subtotalManoObra + subtotalMateriales;
+            const iva = subtotal * 0.16;
+            const total = subtotal + iva;
+
+            document.getElementById('subtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('iva').textContent = formatCurrency(iva);
+            document.getElementById('total').textContent = formatCurrency(total);
+        }
+
+        // Función para añadir listeners a los inputs de una fila
+        function addInputListeners(fila) {
+            const inputs = fila.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', calcularTotales);
+            });
+        }
+
+        // Añadir listeners a todos los inputs iniciales
+        document.querySelectorAll('tbody tr').forEach(addInputListeners);
+
+        // Lógica para agregar filas a la tabla de Mano de Obra
+        document.getElementById('agregar-mano-obra').addEventListener('click', function() {
+            const tablaBody = document.querySelector('#tabla-mano-obra tbody');
+            const nuevaFila = document.createElement('tr');
+            nuevaFila.innerHTML = `
+                <td class="border border-gray-300 p-1"><input type="text" placeholder="Nuevo puesto"></td>
+                <td class="border border-gray-300 p-1"><input type="number" class="text-center" value="0"></td>
+                <td class="border border-gray-300 p-1"><input type="number" class="text-right" value="0.00"></td>
+                <td class="border border-gray-300 p-2 text-right bg-gray-50">$0.00</td>
+            `;
+            tablaBody.appendChild(nuevaFila);
+            addInputListeners(nuevaFila);
+        });
+
+        // Lógica para agregar filas a la tabla de Materiales
+        document.getElementById('agregar-material').addEventListener('click', function() {
+            const tablaBody = document.querySelector('#tabla-materiales tbody');
+            const nuevaFila = document.createElement('tr');
+            nuevaFila.innerHTML = `
+                <td class="border border-gray-300 p-1"><input type="text" placeholder="Nuevo material o equipo"></td>
+                <td class="border border-gray-300 p-1"><input type="number" class="text-center" value="1"></td>
+                <td class="border border-gray-300 p-1"><input type="number" class="text-right" value="0.00"></td>
+                <td class="border border-gray-300 p-2 text-right bg-gray-50">$0.00</td>
+            `;
+            tablaBody.appendChild(nuevaFila);
+            addInputListeners(nuevaFila);
+        });
+
+        // Calcular totales al cargar la página por primera vez
+        document.addEventListener('DOMContentLoaded', calcularTotales);
+
+        // Lógica para exportar a PDF
+        document.getElementById('exportar-pdf').addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const elementToPrint = document.getElementById('cotizacion-container');
+            
+            html2canvas(elementToPrint, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const canvasWidth = canvas.width;
+                const canvasHeight = canvas.height;
+                const ratio = canvasWidth / canvasHeight;
+                const width = pdfWidth - 20; // Margen de 10mm a cada lado
+                const height = width / ratio;
+
+                let position = 0;
+                
+                pdf.addImage(imgData, 'PNG', 10, 10, width, height);
+                pdf.save('Cotizacion_Industrial.pdf');
+            });
+        });
+    </script>
+</body>
+</html>
